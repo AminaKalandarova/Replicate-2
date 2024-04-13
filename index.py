@@ -39,7 +39,7 @@ def preprocess_inputs(df, target='Class'):
   return X_train, X_test, y_train, y_test
 
 def build_model(num_classes=3):
-  inputs=tf.keras.Input(shape=(X_train, shape[1],))
+  inputs=tf.keras.Input(shape=(X_train.shape[1],))
   x=tf.keras.layers.Dense(128, activation='relu')(inputs)
   x=tf.keras.layers.Dense(128, activation='relu')(x)
   outputs=tf.keras.layers.Dense(num_classes, activation='softmax')(x)
@@ -47,7 +47,7 @@ def build_model(num_classes=3):
   model = tf.keras.Model (inputs=inputs, outputs=outputs)
   model.compile(
     optimizer='adam',
-    loss='sparse_categorical_crossentrapy',
+    loss='sparse_categorical_crossentropy',
     metrics=['accuracy']
   )
   
@@ -57,9 +57,9 @@ X_train, X_test, y_train, y_test = preprocess_inputs(data, target='Class')
 
 class_model=build_model(num_classes=3)
 class_history=class_model.fit(
-  X-train,
-  y-train,
-  validation_split==0.2,
+  X_train,
+  y_train,
+  validation_split=0.2,
   batch_size=32,
   epochs=50,
   callbacks=[
@@ -74,3 +74,24 @@ class_history=class_model.fit(
 class_acc = class_model.evaluate(X_test, y_test, verbose=0) [1]
 print('Test Accuracy (Class Model): {:.2f}%'.format(class_acc * 100))
 
+#User Prediction 
+X_train, X_test, y_train, y_test = preprocess_inputs(data, target='User')
+
+user_model=build_model(num_classes=4)
+user_history=user_model.fit(
+  X_train,
+  y_train,
+  validation_split=0.2,
+  batch_size=32,
+  epochs=50,
+  callbacks=[
+    tf.keras.callbacks.EarlyStopping(
+      monitor='val_loss',
+      patience=3,
+      restore_best_weights=True
+    )
+  ]
+)
+
+user_acc = user_model.evaluate(X_test, y_test, verbose=0)[1]
+print("Test Accuracy (Class Model): {:.2f}%".format(user_acc * 100))
